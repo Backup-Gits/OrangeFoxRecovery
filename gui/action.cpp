@@ -1361,7 +1361,13 @@ int GUIAction::reinject_after_flash()
 
 int GUIAction::flash(std::string arg)
 {
+  int active_slot = 0;
   backup_before_flash();
+  if (DataManager::GetIntValue(TW_HAS_DEVICEAB) == 1 && DataManager::GetIntValue(TW_ACTIVE_SLOT_INSTALL) == 1) {
+   	string cmd = "setprop tw_active_slot_install 1";
+		TWFunc::Exec_Cmd(cmd);
+		active_slot = 1;
+  }
   int i, ret_val = 0, wipe_cache = 0;
   int has_installed_rom = 0;
 
@@ -1447,7 +1453,12 @@ int GUIAction::flash(std::string arg)
 
    // This needs to be after the operation_end call so we change pages before we change variables that we display on the screen
    DataManager::SetValue(TW_ZIP_QUEUE_COUNT, zip_queue_index);
-
+  // Reset active slot counter to 0
+	if (active_slot == 1) {
+		active_slot = 0;
+    string cmd = "setprop tw_active_slot_install 0";
+		TWFunc::Exec_Cmd(cmd);
+  }
    return 0;
 }
 
